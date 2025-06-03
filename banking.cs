@@ -1,11 +1,7 @@
-
-using System.ComponentModel.Design;
-using System.Transactions;
-
 public static class Program
 {
     const string money = """
-    stored 1000
+    stored 2000
     taken 500
     stored 501
     """;
@@ -23,6 +19,12 @@ public static class Program
             {
                 how -= tf.hows;
             }
+            how += tf switch
+            {
+                (enums.Stored, var hows) => hows,
+                (enums.Taken, var hows) => -hows,
+                _ => 0,
+            };
             Console.WriteLine($"{tf.type} updated amount {how}");
         }
     }
