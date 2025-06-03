@@ -1,30 +1,63 @@
 
-    string money = """
+using System.ComponentModel.Design;
+using System.Transactions;
+
+public static class Program
+{
+    const string money = """
     stored 1000
     taken 500
     stored 501
     """;
-      
-        double how = 0;
-        var reader = new StringReader(money);
 
+    public static void Main()
+    {
+        double how = 0;
+        foreach (var tf in tr(money))
+        {
+            if (tf.type == enums.Stored)
+            {
+                how += tf.hows;
+            }
+            else if (tf.type == enums.Taken)
+            {
+                how -= tf.hows;
+            }
+            Console.WriteLine($"{tf.type} updated amount {how}");
+        }
+    }
+
+    static IEnumerable<(enums type, double hows)> tr(string inputText)
+    { 
+        var reader = new StringReader(inputText);
         string? fy;
         while ((fy = reader.ReadLine()) is not null)
         {
-            if (string.IsNullOrWhiteSpace(fy)) continue;
             string[] parts = fy.Split(' ');
 
-            string? tf = parts[0]?.Trim();
+            string? tfs = parts[0]?.Trim();
             if (double.TryParse(parts[1].Trim(), out double hows))
             {
-                if (tf?.ToLower() is "stored")
+                if (tfs?.ToUpper() is "STORED")
                 {
-                    how += hows;
+                    yield return (enums.Stored, hows);
                 }
-                else if (tf?.ToLower() is "taken")
+                else if (tfs?.ToUpper() is "TAKEN")
                 {
-                    how -= hows;
+                    yield return (enums.Taken, hows);
                 }
-                Console.WriteLine($"{fy.Trim()} updated amount {how}");
+            }
+            else
+            {
+                yield return (enums.Invalid, 0);
             }
         }
+    }
+}
+
+public enum enums
+{
+    Stored,
+    Taken,
+    Invalid,
+}
